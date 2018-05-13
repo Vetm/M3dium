@@ -4,7 +4,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 
 
-namespace CUEAmbietent
+namespace CUEAmbient
 {
     class Win32Stuff
     {

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CUEAmbietent
+namespace CUEAmbient
 {
     public class ScreenTools
     {

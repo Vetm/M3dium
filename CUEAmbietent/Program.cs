@@ -11,7 +11,7 @@ using CUE.NET.Devices.Generic.Enums;
 using System.Drawing;
 using CUE.NET.Devices.Keyboard.Enums;
 
-namespace CUEAmbietent
+namespace CUEAmbient
 {
     static class Program
     {
@@ -19,11 +19,15 @@ namespace CUEAmbietent
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
+
         static void Main()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Form1 main = new Form1();
+            Application.Run(main);
         }
+
+        //public static 
     }
 }
