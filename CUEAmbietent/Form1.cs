@@ -17,8 +17,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using M3dium.Properties;
 
-namespace CUEAmbietent
+
+namespace CUEAmbient
 {
 
     public partial class Form1 : Form
@@ -26,8 +28,11 @@ namespace CUEAmbietent
         private int lightningMode = 0;
         private bool active;
         private Timer timer;
+        private Timer settings_timer;
+        M3dium.Form2 settings_form;
         CorsairKeyboard keyboard;
         RectangleKeyGroup[,] ambientRect = new RectangleKeyGroup[22, 7];
+        ContextMenu context = new ContextMenu();
 
         IBrush brush = null;
 
@@ -63,6 +68,21 @@ namespace CUEAmbietent
             timer.Tick += new EventHandler(Refresh);
             timer.Interval = 100; // in miliseconds
             timer.Start();
+            if (Settings.Default.Start_minimized)
+            {
+                notifyIcon.Visible = true;
+            }
+            if (Settings.Default.Enable_with_application_start)
+            {
+                lightningMode = 0;
+                active = true;
+            }
+            if (Settings.Default.Display_color)
+            {
+                currentcolor.Visible = true;
+            }
+            context.MenuItems.Add(0, new MenuItem("Exit", new System.EventHandler(Close)));
+            notifyIcon.ContextMenu = context;
         }
 
         private void Refresh(object sender, EventArgs e)
@@ -98,10 +118,16 @@ namespace CUEAmbietent
             img = new Bitmap(img, new Size(img.Width / 100, img.Height / 100));
             Color background = getDominantColor(img);
             Debug.Print(background.ToString());
+            if (Settings.Default.Display_color) update_color_display(background);
             brush = new SolidColorBrush(background);
             brush.Brightness = 1f;
             keyboard.Brush = brush;
             keyboard.Update();
+        }
+
+        void update_color_display(Color background)
+        {
+            currentcolor.Text = "Color: " + "R " + background.R + ",G " + background.G + ",B " + background.B;
         }
 
         /*void AmbientColor()
@@ -175,6 +201,16 @@ namespace CUEAmbietent
 
             return rectGroup;
         }*/
+        
+        public void show_color()
+        {
+            currentcolor.Visible = true;
+        }
+
+        public void hide_color()
+        {
+            currentcolor.Visible = false;
+        }
 
         private void average_On(object sender, EventArgs e)
         {
@@ -202,6 +238,70 @@ namespace CUEAmbietent
         private void Form1_Load(object sender, EventArgs e)
         {
 
+        }
+
+        private void settings_button_Click(object sender, EventArgs e)
+        {
+            settings_form = new M3dium.Form2();
+            settings_form.Show();
+            settings_timer = new Timer();
+            settings_timer.Tick += new EventHandler(Check_Form);
+            settings_timer.Interval = 100; // in miliseconds
+            settings_timer.Start();
+        }
+
+        private void Check_Form(object sender, EventArgs e)
+        {
+            if (Settings.Default.Display_color)
+            {
+                currentcolor.Visible = true;
+            }
+            else
+            {
+                currentcolor.Visible = false;
+            }
+            if (settings_form.IsDisposed)
+            {
+                settings_timer.Stop();
+            }
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                this.Hide();
+                notifyIcon.Visible = true;
+            }
+        }
+
+        private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == System.Windows.Forms.MouseButtons.Left) {
+                this.Show();
+                this.WindowState = FormWindowState.Normal;
+                this.BringToFront();
+                notifyIcon.Visible = false;
+            }
+        }
+
+        private void Close(Object sender, System.EventArgs e)
+        {
+            Close();
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.notifyIcon.Dispose();
+            base.Dispose();
+        }
+
+        private void Form1_Shown(object sender, EventArgs e)
+        {
+            if (Settings.Default.Start_minimized)
+            {
+                this.Hide();
+            }
         }
     }
 }
